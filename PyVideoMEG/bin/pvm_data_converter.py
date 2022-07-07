@@ -52,60 +52,52 @@ def read_ts(fname):
 
     return (ts, lns)
     
+def function(fname):
+    if fname.endswith('_raw.audio.dat'):
+        fname_base = fname[:-len('_raw.audio.dat')]
+        
+    elif fname.endswith('_raw.audio.ts'):
+        fname_base = fname[:-len('_raw.audio.ts')]
 
-fname = sys.argv[1]
-fname_base = ''
+    print(fname_base)
+    assert(fname_base != '')
 
-if fname.endswith('_videodump.dat'):
-    fname_base = fname[:-len('_videodump.dat')]
-    
-if fname.endswith('_videodump.ts'):
-    fname_base = fname[:-len('_videodump.ts')]
+    # video
+    # (ts, lns) = read_ts(fname_base + '_videodump.ts')
+    # dat_file = open(fname_base + '_videodump.dat', 'rb')
+    # out_file = open(fname_base + '.vid', 'wb')
+    # out_file.write(MAGIC_VIDEO_STR)
+    # out_file.write(struct.pack('I', 1))    # file format version
 
-if fname.endswith('_audiodump.dat'):
-    fname_base = fname[:-len('_audiodump.dat')]
-    
-if fname.endswith('_audodump.ts'):
-    fname_base = fname[:-len('_audiodump.ts')]
+    # for i in range(len(ts)):
+    #     out_file.write(struct.pack('Q', ts[i]))
+    #     out_file.write(struct.pack('I', lns[i]))
+    #     out_file.write(dat_file.read(lns[i]))
+        
+    # dat_file.close()
+    # out_file.close()
+        
+                
+    # audio
+    (ts, lns) = read_ts(fname_base + '.audio.ts')
+    dat_file = open(fname_base + '.audio.dat', 'rb')
+    out_file = open(fname_base + '.aud', 'wb')
+    out_file.write(MAGIC_AUDIO_STR)
+    out_file.write(struct.pack('I', 1))    # file format version
 
-assert(fname_base != '')
+    # estimate sampling frequency
+    sfreq = (lns[1] / (2*2)) * 1000. / (numpy.array(ts[1:]) - numpy.array(ts[:-1])).mean()
+    sfreq_match = SFREQS[numpy.argmin(numpy.abs((numpy.array(SFREQS) - sfreq)))]
+    print('Estimated sampling frequency is %f, using the closest match %f' % (sfreq, sfreq_match))
+    print('ALSA period size is %i samples' % (lns[1] / (2*2)))
+    out_file.write(struct.pack('I', sfreq_match))
+    out_file.write(struct.pack('I', 2))    # number of channels
 
-# video
-(ts, lns) = read_ts(fname_base + '_videodump.ts')
-dat_file = open(fname_base + '_videodump.dat', 'rb')
-out_file = open(fname_base + '.vid', 'wb')
-out_file.write(MAGIC_VIDEO_STR)
-out_file.write(struct.pack('I', 1))    # file format version
-
-for i in range(len(ts)):
-    out_file.write(struct.pack('Q', ts[i]))
-    out_file.write(struct.pack('I', lns[i]))
-    out_file.write(dat_file.read(lns[i]))
-    
-dat_file.close()
-out_file.close()
-    
-               
-# audio
-(ts, lns) = read_ts(fname_base + '_audiodump.ts')
-dat_file = open(fname_base + '_audiodump.dat', 'rb')
-out_file = open(fname_base + '.aud', 'wb')
-out_file.write(MAGIC_AUDIO_STR)
-out_file.write(struct.pack('I', 1))    # file format version
-
-# estimate sampling frequency
-sfreq = (lns[1] / (2*2)) * 1000. / (numpy.array(ts[1:]) - numpy.array(ts[:-1])).mean()
-sfreq_match = SFREQS[numpy.argmin(numpy.abs((numpy.array(SFREQS) - sfreq)))]
-print('Estimated sampling frequency is %f, using the closest match %f' % (sfreq, sfreq_match))
-print('ALSA period size is %i samples' % (lns[1] / (2*2)))
-out_file.write(struct.pack('I', sfreq_match))
-out_file.write(struct.pack('I', 2))    # number of channels
-
-for i in range(len(ts)):
-    out_file.write(struct.pack('Q', ts[i]))
-    out_file.write(struct.pack('I', lns[i]))
-    out_file.write(dat_file.read(lns[i]))
-    
-dat_file.close()
-out_file.close()
-    
+    for i in range(len(ts)):
+        out_file.write(struct.pack('Q', ts[i]))
+        out_file.write(struct.pack('I', lns[i]))
+        out_file.write(dat_file.read(lns[i]))
+        
+    dat_file.close()
+    out_file.close()
+        
