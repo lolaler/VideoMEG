@@ -27,9 +27,9 @@ from scipy.io import wavfile
 import numpy as np
 from os import path as op
 
-import pyvideomeg
+from PyVideoMEG.pyvideomeg import comp_tstamps, read_data, video_writer
 
-for aud_file in sys.argv[1:]:
+def export(aud_file):
     if not op.isfile(aud_file):
         raise IOError('file not found: %s' % aud_file)
     if op.splitext(aud_file)[1] != '.aud':
@@ -37,11 +37,11 @@ for aud_file in sys.argv[1:]:
     out_file = op.splitext(aud_file)[0] + '.wav'
     if op.isfile(out_file):
         print('Skipping, output file exists: %s' % out_file)
-        continue
-    print('Creating file: %s' % out_file)
-    sys.stdout.flush()
-    aud_file = pyvideomeg.AudioData(aud_file)
-    rate = aud_file.srate
-    n_ch = aud_file.nchan
-    aud_file = np.frombuffer(aud_file.raw_audio, '<i2').reshape(-1, n_ch)
-    wavfile.write(out_file, rate, aud_file)
+    else:
+        print('Creating file: %s' % out_file)
+        sys.stdout.flush()
+        aud_file = read_data.AudioData(aud_file)
+        rate = aud_file.srate
+        n_ch = aud_file.nchan
+        aud_file = np.frombuffer(aud_file.raw_audio, '<i2').reshape(-1, n_ch)
+        wavfile.write(out_file, rate, aud_file)
