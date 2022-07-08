@@ -32,10 +32,10 @@ import mne
 from PyVideoMEG import pyvideomeg
 from PyVideoMEG.bin import pvm_export_audio, pvm_data_converter
 
-AUDIO_FNAME = '/net/tera2/data/neuro-data/megtms_naming/case_6184/220621/megtms_naming_sub06_run02_order1_setB_raw.audio.dat'
-VIDEO_FNAME = '/net/tera2/data/neuro-data/megtms_naming/case_6184/220621/megtms_naming_sub06_run02_order1_setB_raw.video.dat'
+AUDIO_FNAME = 'some path'
+VIDEO_FNAME = 'some path'
 
-MEG_FNAME = '/net/tera2/data/neuro-data/megtms_naming/case_6184/220621/megtms_naming_sub06_run02_order1_setB_raw.fif'
+MEG_FNAME = 'some path'
 TIMING_CH = 'STI015'
 MEG_CH = 'MEG1142'
 FRAME_SZ = (640, 480)
@@ -68,6 +68,6 @@ aud_file = pyvideomeg.AudioData(AUDIO_FNAME)
 audio, audio_ts = aud_file.format_audio()
 audio = audio[0,:].squeeze()    # use only the first audio channel
 
-dot_aud_file = '/net/tera2/data/neuro-data/megtms_naming/case_6184/220621/megtms_naming_sub06_run02_order1_setB.aud'
+dot_aud_file = 'some path'
 pvm_data_converter.function(AUDIO_FNAME)
 pvm_export_audio.export(dot_aud_file)
